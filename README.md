@@ -1,2 +1,8 @@
 # Vision is all you need: using minimal data and machine learning to predict patient vision without imaging biomarkers
-Predicting nAMD patient vision using machine learning.
+Predicting nAMD patient vision using machine learning. Our top-performing model, TabNet, achieved results almost twice as good as published regression baselines using a 10th of the input features, and without using any imaging biomarkers.
+
+## Repository structure
+The repository follows a standard structure:
+* [input](https://github.com/charlieoneill11/predicting_vision_paper/tree/main/input) contains both the patient data as well as the notebook used to preprocess, clean and feature engineer the data. The three main datasets for prediction of OVC at the end of the first, second and third year respectively are `df_1_years.csv`, `df_2_years.csv` and `df_3_years.csv`. Neither train-valid splits nor k-fold cross validation splits have been provided, but rather are undertaken in the training scripts themselves.
+* [notebooks](https://github.com/charlieoneill11/diabeticretinopathy/tree/main/notebooks) contains notebooks used for experimenting and producing results. The notebooks are divided into the classification and regression tasks.
+* [training](https://github.com/charlieoneill11/predicting_vision_paper/tree/main/training) contains the Python scripts allowing the user to train and evaluate different models on the required dataset from the command line. The main script is [train_classify.py](https://github.com/charlieoneill11/predicting_vision_paper/blob/main/training/train_classify.py) and [train_regression.py](https://github.com/charlieoneill11/predicting_vision_paper/blob/main/training/train_regression.py), both of which rely on the other scripts for configuration, dataset retrieval and argument parsing.
