@@ -1,3 +1,5 @@
+import pandas as pd
+import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn import model_selection
 from sklearn.metrics import roc_auc_score
@@ -57,7 +59,7 @@ class PytorchKfolds:
         return df
     
     def inputs_targets(self, df, fold):
-        df = create_folds(df)
+        df = self.create_folds(df)
         df_train = df[df.kfold != fold].reset_index(drop=True)
         df_train.fillna(df_train.mean(), inplace=True)
         df_valid = df[df.kfold == fold].reset_index(drop=True)
@@ -124,7 +126,7 @@ class PytorchKfolds:
     def training_loop(self, train_loader, val_loader, verbose=0):
         n_epochs=self.n_epochs
         model=Net()
-        model.apply(reset_weights)
+        model.apply(self.reset_weights)
         optimiser=torch.optim.Adam(model.parameters(), lr=1e-2)
         loss_fn=self.loss_fn
         model.train()
