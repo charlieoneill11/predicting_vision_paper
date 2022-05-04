@@ -18,7 +18,7 @@ tabnet_params = {"optimizer_fn":torch.optim.Adam,
 
 classify_models = {
  "rf": ensemble.RandomForestClassifier(max_depth=40, n_estimators=250, 
-                                       max_features=10, random_state=42),
+                                       random_state=42),
  "gb": ensemble.GradientBoostingClassifier(),
  "lr": linear_model.LogisticRegression(),
  "tn": TabNetClassifier(**tabnet_params)}

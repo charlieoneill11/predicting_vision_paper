@@ -39,8 +39,8 @@ class PytorchKfolds:
         self.loss_fn = nn.CrossEntropyLoss()
 
     def init_df(self):
-        def label_ovc(row): return 1 if (row.target_va - row.first_va) >= 0 else 0
-        df = pd.read_csv("~/Documents/Github/paper/input/df_3_years.csv")
+        def label_ovc(row): return 1 if (row.target_va - row.va_1) >= 0 else 0
+        df = pd.read_csv("~/Documents/Github/paper/input/df_3_years_2_visits.csv")
         df['outcome'] = df.apply(lambda row: label_ovc(row), axis=1)
         return df
     

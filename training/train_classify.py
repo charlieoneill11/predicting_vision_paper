@@ -19,7 +19,7 @@ def score(model, X, y, cv=5, scoring='accuracy'):
     scores = cross_val_score(model, X, y, cv=cv, scoring=scoring)
     return np.mean(scores), np.std(scores)
 
-def label_ovc(row): return 1 if (row.target_va - row.first_va) >= 0 else 0
+def label_ovc(row): return 1 if (row.target_va - row.va_1) >= 0 else 0
 
 def label_ovc_multi(row):
     final_bcva = row.target_va
@@ -32,9 +32,12 @@ def label_ovc_multi(row):
         else: toRtn = 3
     return toRtn
 
-def run(model, years, multi=False):
+def run(model, years_visits, multi=False, visits=True):
     # read the training data with folds
-    df = pd.read_csv(config.TRAINING_FILE[years-1])
+    if visits: 
+        df = pd.read_csv(config.MULTIVISITS_FILE[years_visits-2])
+        print(f"NUMBER OF INPUT VISITS: {years_visits}")
+    else: df = pd.read_csv(config.TRAINING_FILE[years_visits-1])
     # create the target variable
     if multi: df['outcome'] = df.apply(lambda row: label_ovc_multi(row), axis=1)
     else: df['outcome'] = df.apply(lambda row: label_ovc(row), axis=1)
@@ -47,32 +50,30 @@ def run(model, years, multi=False):
     if model != "tn": 
         clf.fit(X_train, y_train)
         y_preds = clf.predict(X_test)
-        cm = confusion_matrix(y_test, y_preds)
         if multi: auc_mean, auc_std = score(clf, X, y, scoring='roc_auc_ovr_weighted')
         else: auc_mean, auc_std = score(clf, X, y, scoring='roc_auc')
         acc_mean, acc_std = score(clf, X, y, scoring='accuracy')
         print(f"AUC: mean={np.round(auc_mean, 2)}, std={np.round(auc_std, 2)}")
         print(f"Accuracy: mean={np.round(100*acc_mean, 2)}%, std={np.round(100*acc_std, 2)}")
-        print(f"Confusion matrix:")
-        print(cm)
-    else: kfold_tabnet(clf, X, y)
+    else: kfold_tabnet(clf, X, y, multi)
     #joblib.dump(clf, os.path.join(config.MODEL_OUTPUT, f"dt_{model}.bin"))
 
-def kfold_tabnet(clf, X, y):
+def kfold_tabnet(clf, X, y, multi):
     aucs, accuracies = [], []
     for i in range(5):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-        auc, accuracy = fit_tabnet(clf, X_train, y_train, X_test, y_test)
+        auc, accuracy = fit_tabnet(clf, X_train, y_train, X_test, y_test, multi)
         aucs.append(auc), accuracies.append(accuracy)
     auc, auc_std = np.round(np.mean(aucs), 4), np.round(np.std(aucs), 4)
     accuracy, acc_std = np.round(np.mean(accuracies), 2), np.round(np.std(accuracies), 2)
     print(f"AUC: mean={auc}, std={auc_std}")
     print(f"Accuracy: mean={accuracy}%, std={acc_std}")
 
-def fit_tabnet(clf, X_train, y_train, X_test, y_test):
+def fit_tabnet(clf, X_train, y_train, X_test, y_test, multi):
     clf.fit(X_train, y_train, eval_set=[(X_test, y_test)],
             eval_metric=['accuracy'], patience=1000, max_epochs=10000)
-    preds_proba = clf.predict_proba(X_test)
+    if multi: preds_proba = clf.predict_proba(X_test)
+    else: preds_proba = clf.predict_proba(X_test)[:,1]
     test_auc = roc_auc_score(y_score=preds_proba, y_true=y_test,
                              average="weighted", multi_class="ovr")
     preds = np.round(clf.predict(X_test), 4)
@@ -84,9 +85,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # add the different arguments
     parser.add_argument("--model",type=str)
-    parser.add_argument("--years",type=int)
+    parser.add_argument("--years_visits",type=int)
     parser.add_argument("--multi",type=bool)
+    parser.add_argument("--visits",type=bool)
     # read the arguments from the command line
     args = parser.parse_args()
     # run the fold specified by the command line arguments
-    run(model=args.model, years=args.years, multi=args.multi)
+    run(model=args.model, years_visits=args.years_visits, multi=args.multi, 
+        visits=args.visits)
