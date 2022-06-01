@@ -51,5 +51,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     # run the fold specified by the command line arguments
     evaluate(model=args.model, years=args.years)
-
-# TO-DO: Shadings for asggregated temporal plot
