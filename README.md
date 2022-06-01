@@ -10,3 +10,8 @@ The repository follows a standard structure:
 
 ## Training and evaluating models
 Navigate into the [training](https://github.com/charlieoneill11/predicting_vision_paper/tree/main/training) folder and open a terminal. Change the [`config.py`](https://github.com/charlieoneill11/predicting_vision_paper/blob/main/training/config.py) file to the appropriate paths. Run `python train.py --model --year`, where `model` and `year` are arguments passed in at the command line representing the model used for prediction and the end year OVC is being predicted at. You can alter the hyperparameters of the available models, or even add models yourself, in the [`model_dispatcher.py`](https://github.com/charlieoneill11/predicting_vision_paper/blob/main/training/model_dispatcher.py) file.
+
+To train a vanilla neural network, run
+```bash
+python vanilla_nn.py --years 3
+```
